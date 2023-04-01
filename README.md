@@ -31,3 +31,6 @@ npx shadow-cljs watch app (for the reagent application, running on port 3000)
 lein with-profile dev,server run (for the websocket server application, running on port 8080)
 ```
 
+## Acknowledgements 
+
+Tenma Chess was made possible thanks to the open game databases from lichess.org and chess.com (used in the test resources)
