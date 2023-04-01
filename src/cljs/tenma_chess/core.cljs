@@ -192,8 +192,7 @@
 
 (defn mount-root []
   (connect-ws!)
-  (rdom/render [app] (.getElementById js/document "app"))
-)
+  (rdom/render [app] (.getElementById js/document "app")))
 
 (defn init! []
   (mount-root))
