@@ -1,4 +1,4 @@
-lein-env
+.lein-env
 .shadow-cljs/
 node_modules/
 package-lock.json
