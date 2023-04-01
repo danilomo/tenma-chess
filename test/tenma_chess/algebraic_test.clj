@@ -1,23 +1,27 @@
 (ns tenma-chess.algebraic-test
   (:require [clojure.string :as s]
-            [tenma-chess.algebraic :refer :all]
+            [clojure.java.io :as io]
+            [tenma-chess.algebraic :refer [make-move-algebraic parse-pgn]]
             [tenma-chess.chess :refer [new-game]]
-            [clojure.test :refer :all]))
+            [clojure.test :refer [deftest is testing]]))
 
 (def games-list (map
                  #(str "games/" %)
-                 (clojure.string/split (slurp (clojure.java.io/resource "games.txt")) #"\n")))
+                 (clojure.string/split (slurp (io/resource "games.txt")) #"\n")))
 
 (def multi-games-list (map
                        #(str "multi-game-files/" %)
-                       (clojure.string/split (slurp (clojure.java.io/resource "multi-game-files.txt")) #"\n")))
+                       (clojure.string/split (slurp (io/resource "multi-game-files.txt")) #"\n")))
 
 (defn check-game-algebraic [game-as-pgn]
   (let [history (->> game-as-pgn
                      (:moves)
                      (reduce (fn [games move]
                                (let [last-g (:game (last games))]
-                                 (conj games {:game (let [new-g (make-move-algebraic last-g move)] (do (is new-g (str "Invalid move " move " - " (:meta-inf game-as-pgn))) new-g))
+                                 (conj games {:game (let [new-g (make-move-algebraic last-g move)] 
+                                                      (is new-g 
+                                                          (str "Invalid move " move " - " (:meta-inf game-as-pgn))) 
+                                                          new-g)
                                               :move move})))
                              [{:game (new-game)}]))]
     (doseq [entry history]
@@ -69,7 +73,7 @@
           (cond (= "" (s/trim line)) (recur [remainder acc])
                 (and (nil? acc) (.startsWith line "[Event ")) (recur [remainder (conj acc line)])
                 (.startsWith line "[Event ") (do (callback (s/join "\n" acc)) (recur [remainder [line]]))
-                :default (recur [remainder (conj acc line)]))
+                :else (recur [remainder (conj acc line)]))
           (callback (s/join "\n" acc)))))))
 
 (deftest test-multigames-file
