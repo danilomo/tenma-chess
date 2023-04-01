@@ -43,7 +43,7 @@ Tenma Chess started as a programming challenge I gave myself to learn Clojure. T
 
 In the "todo.org" file I collect thoughts about what I could do to extend the project and put it in a good shape. Now the aim is to make a "lichess.org lite", a website which can host online games between anonymous and registered users.
 
-The current source code is not well organized (may lack cohesion) and the game server is full of flaws and resource/memory leaks (channels and connection aren't closed, timeouts are not checked). The game logic was tested with dozen of games, but still lacks draw detection (which can be more complicated the whole game itself).
+The current source code is not well organized (may lack cohesion) and the game server is full of flaws and resource/memory leaks (channels and connection aren't closed, timeouts are not checked). The game logic was tested with dozens of games, but still lacks draw detection (which can be more complicated the whole game itself).
 
 ## Acknowledgements 
 
