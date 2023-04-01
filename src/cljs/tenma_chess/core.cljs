@@ -193,7 +193,6 @@
 (defn mount-root []
   (connect-ws!)
   (rdom/render [app] (.getElementById js/document "app"))
-  (println "Xana com xana é bacana")
 )
 
 (defn init! []
