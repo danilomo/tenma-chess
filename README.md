@@ -6,7 +6,7 @@ A remote chess game powered by Clojure
 Tenma Chess is an experimental chess server that runs as a reagent application connected by the game server via websockets. It runs on top of:
 
 * core/async
-* Aleph+ring+
+* Aleph+ring+manifold
 * Reagent
 
 ## Instructions
