@@ -33,4 +33,4 @@ lein with-profile dev,server run (for the websocket server application, running 
 
 ## Acknowledgements 
 
-Tenma Chess was made possible thanks to the open game databases from lichess.org and chess.com (used in the test resources)
+Creating Tenma Chess was possible thanks to the open game databases from lichess.org and chess.com (used in the test resources)
