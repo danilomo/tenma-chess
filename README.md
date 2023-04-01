@@ -9,6 +9,12 @@ Tenma Chess is an experimental chess server that runs as a reagent application c
 * Aleph+ring+manifold
 * Reagent
 
+## Project Organization 
+
+* cljs - contains the Reagent application
+* cljc - contains the "chess" and "algebraic" namespace for the core game logic and parsing of algebraic notation (files and moves). This implementation is used both by frontend and the game server
+* clj - contains the server implementation (ring + aleph) and the "concurrent" namespace which implements the game server logic as CSP (go blocks)
+
 ## Instructions
 
 ### Running tests
