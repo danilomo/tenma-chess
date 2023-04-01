@@ -4,7 +4,7 @@
    [tenma-chess.middleware :refer [middleware]]
    [hiccup.page :refer [include-js include-css html5]]
    [config.core :refer [env]]
-   [tenma-chess.websocket :refer [chat-handler echo-handler chess-handler]]
+   [tenma-chess.websocket :refer [chess-handler]]
    [ring.middleware.params :as params]))
 
 (def mount-target
@@ -37,8 +37,6 @@
   (params/wrap-params (reitit-ring/ring-handler
                        (reitit-ring/router
                         [["/" {:get {:handler index-handler}}]
-                         ["/echo"  echo-handler]
-                         ["/chat"  chat-handler]
                          ["/chess" chess-handler]])
                        (reitit-ring/routes
                         (reitit-ring/create-resource-handler {:path "/" :root "/public"})

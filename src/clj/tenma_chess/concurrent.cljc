@@ -14,8 +14,7 @@
                 move (<! chan-in)
                 new-game (move-func game move)]
             (if (nil? new-game)
-              (do
-                (recur game))
+              (recur game)
               (do
                 (>! chan-out {:move move})
                 (reset! (:game game-match) new-game)
@@ -27,12 +26,12 @@
                                  :white {:in (a/chan) :out (a/chan 100)}
                                  :black {:in (a/chan) :out (a/chan 100)}}]
                  (add-watch game-atom :print-board
-                            (fn [k a alt neu]
+                            (fn [_ _ _ neu]
                               (println (str "Board\n" (print-game neu)))))
 
                  (start-match game-match move-func)))
-  ([game-match move-func] (do (start-game-match! game-match move-func)
-                              game-match)))
+  ([game-match move-func] (start-game-match! game-match move-func)
+                              game-match))
 
 (def id-gen (atom 0))
 
@@ -49,7 +48,7 @@
                  first-waiting
                  {:game game-atom :black player})]
       (add-watch game-atom :print-board
-                 (fn [k a alt neu]
+                 (fn [_ _ _ neu]
                    (println (str "Board\n" (print-game neu)))))
       (a/go
         (>! (:out player) {:type :start :color :black})

@@ -10,6 +10,7 @@
 
 (defn -main [& args]
   (let [port (or (env :port) 3000)]
+    (println port)
     (http/start-server #'app {:port port})))
 
 (defn socket-reader [inputstream]
@@ -46,7 +47,6 @@
         chan-in (a/chan 100)
         chan-out (a/chan 100)]
     (a/go
-      ;(>! output "Hello, meu nego")
       (>! server-chan {:in chan-in :out chan-out})
       (let [start-msg (<! chan-out)
             color (:color start-msg)
