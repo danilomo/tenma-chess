@@ -1,0 +1,19 @@
+[Event "Live Chess"]
+[Site "Chess.com"]
+[Date "2022.04.02"]
+[White "BigAl"]
+[Black "LawrenceTrent"]
+[Result "1-0"]
+[ECO "B00"]
+[WhiteElo "2515"]
+[BlackElo "2371"]
+[TimeControl "300"]
+[EndTime "14:02:14 PDT"]
+[Termination "BigAl won by checkmate"]
+[SetUp "1"]
+[FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"]
+
+1. e4 {[%clk 0:04:54]} b6 {[%clk 0:04:57]} 2. Nc3 {[%clk 0:04:53]} Bb7 {[%clk 0:04:56]} 3. g3 {[%clk 0:04:52]} e6 {[%clk 0:04:55]} 4. Bg2 {[%clk 0:04:52]} d5 {[%clk 0:04:54]} 5. exd5 {[%clk 0:04:50]} Nf6 {[%clk 0:04:53]} 6. Nf3 {[%clk 0:04:46]} Nxd5 {[%clk 0:04:51]} 7. O-O {[%clk 0:04:45]} Be7 {[%clk 0:04:50]} 8. a4 {[%clk 0:04:45]} a6 {[%clk 0:04:48]} 9. Re1 {[%clk 0:04:29]} O-O {[%clk 0:04:47]} 10. d4 {[%clk 0:04:26]} Nd7 {[%clk 0:04:45]}
+ 11. Ne4 {[%clk 0:04:08]} N7f6 {[%clk 0:04:42]} 12. Ne5 {[%clk 0:04:06]} Qc8 {[%clk 0:04:23]} 13. c4 {[%clk 0:03:31]} Nb4 {[%clk 0:04:22]} 14. d5 {[%clk 0:03:16]} exd5 {[%clk 0:04:09]} 15. Ng5 {[%clk 0:03:15]} Bc5 {[%clk 0:03:53]} 16. Bh3 {[%clk 0:03:06]} Qd8 {[%clk 0:03:46]} 17. Nexf7 {[%clk 0:02:51]} Rxf7 {[%clk 0:03:13]} 18. Be6 {[%clk 0:02:49]} Ne4 {[%clk 0:03:12]} 19. Bxf7+ {[%clk 0:02:30]} Kh8 {[%clk 0:03:07]} 20. Rxe4 {[%clk 0:02:17]} dxe4 {[%clk 0:03:00]}
+ 21. Qh5 {[%clk 0:02:11]} Bxf2+ {[%clk 0:02:25]} 22. Kg2 {[%clk 0:01:38]} e3+ {[%clk 0:02:24]} 23. Kh3 {[%clk 0:01:37]} Qd3 {[%clk 0:01:58]} 24. Ra3 {[%clk 0:01:21]} Qf1+ {[%clk 0:00:53]} 25. Kh4 {[%clk 0:01:03]} Bxg3+ {[%clk 0:00:52]} 26. hxg3 {[%clk 0:00:47]} Qh1+ {[%clk 0:00:44]} 27. Nh3 {[%clk 0:00:43]} Qe4+ {[%clk 0:00:17]} 28. g4 {[%clk 0:00:32]} e2 {[%clk 0:00:17]} 29. Bd2 {[%clk 0:00:16]} e1=Q+ {[%clk 0:00:16]} 30. Bxe1 {[%clk 0:00:16]} Qxe1+ {[%clk 0:00:16]}
+ 31. Rg3 {[%clk 0:00:15]} Qe7+ {[%clk 0:00:14]} 32. Ng5 {[%clk 0:00:15]} h6 {[%clk 0:00:13]} 33. Qg6 {[%clk 0:00:12]} Qxg5+ {[%clk 0:00:13]} 34. Qxg5 {[%clk 0:00:11]} hxg5+ {[%clk 0:00:12]} 35. Kxg5 {[%clk 0:00:11]} g6 {[%clk 0:00:10]} 36. Kf6 {[%clk 0:00:10]} Bg2 {[%clk 0:00:07]} 37. Rxg2 {[%clk 0:00:09]} Kh7 {[%clk 0:00:06]} 38. Rh2# {[%clk 0:00:08]} 1-0
