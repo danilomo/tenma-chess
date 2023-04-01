@@ -41,7 +41,7 @@ lein with-profile dev,server run (for the websocket server application, running 
 
 Tenma Chess started as a programming challenge I gave myself to learn Clojure. The initial goal was just to write the chess logic and a command line chess game. At some point I started to have many thoughts "What if I add this"/"What if I add that", and started to further expand the initial goal: added the PGN (portable game notation parser), the Reagent application, and finally the game server.
 
-In the "todo.org" file I collect thoughts about what I could do to extend the project and put it in a good shape. No the aim is to make a "lichess.org lite", a website which can host online games between anonymous and registered users.
+In the "todo.org" file I collect thoughts about what I could do to extend the project and put it in a good shape. Now the aim is to make a "lichess.org lite", a website which can host online games between anonymous and registered users.
 
 The current source code is not well organized (may lack cohesion) and the game server is full of flaws and resource/memory leaks (channels and connection aren't closed, timeouts are not checked). The game logic was tested with dozen of games, but still lacks draw detection (which can be more complicated the whole game itself).
 
