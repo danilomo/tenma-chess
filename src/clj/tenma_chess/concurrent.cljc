@@ -20,7 +20,7 @@
                 (reset! (:game game-match) new-game)
                 (recur new-game)))))))
 
-(defn start-match
+(defn start-match!
   ([move-func] (let [game-atom (atom (new-game))
                      game-match {:game game-atom
                                  :white {:in (a/chan) :out (a/chan 100)}
@@ -29,7 +29,7 @@
                             (fn [_ _ _ neu]
                               (println (str "Board\n" (print-game neu)))))
 
-                 (start-match game-match move-func)))
+                 (start-match! game-match move-func)))
   ([game-match move-func] (start-game-match! game-match move-func)
                               game-match))
 
@@ -37,9 +37,7 @@
 
 (defn join-game! [{:keys [waiting game-map move-func] :as games} player]
   (if (empty? waiting)
-
     (assoc games :waiting (conj waiting {:white player}))
-
     (let [game-atom (atom (new-game))
           new-waiting (rest waiting)
           first-waiting (first waiting)
@@ -53,7 +51,7 @@
       (a/go
         (>! (:out player) {:type :start :color :black})
         (>! (:out white) {:type :start :color :white}))
-      (start-match match move-func)
+      (start-match! match move-func)
       (merge games {:waiting new-waiting
                     :game-map (assoc game-map
                                      (swap! id-gen inc)
@@ -61,7 +59,6 @@
 
 (defn start-game-server!
   ([] (start-game-server! make-move-algebraic))
-
   ([move-func] (let [chan-in (a/chan)
                      games (atom {:waiting [] :game-map {} :move-func move-func})]
                  (a/go (loop []

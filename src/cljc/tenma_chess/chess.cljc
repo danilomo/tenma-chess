@@ -37,7 +37,7 @@
         (concat
          [[:br :bn :bb :bq :bk :bb :bn :br]]
          [(into [] (repeat 8 :bp))]
-         (map (fn [row] (vec (repeat 8 nil))) (range 0 4))
+         (map (fn [_row] (vec (repeat 8 nil))) (range 0 4))
          [(into [] (repeat 8 :wp))]
          [[:wr :wn :wb :wq :wk :wb :wn :wr]])))
 
@@ -59,7 +59,7 @@
                       (let [p (get-in board [i j])]
                         (if p [p [i j]] nil)))
                     (filter some?))]
-    (group-by (fn [[piece pos]] (get-color piece)) pieces)))
+    (group-by (fn [[piece _pos]] (get-color piece)) pieces)))
 
 (def game {:board initial-board
            :turn 0
@@ -90,10 +90,10 @@
    (when (nil? (get-p game i j))
      [i j])))
 
-(defn- capture [game color i j]
+(defn- capture
   "Returns a tuple [i j] if the position (i,j) in the game board contains a piece
   of opposite color than the color argument, otherwise returns nil"
-
+  [game color i j]
   (let
    [piece (get-p game i j)
     dest-color (get-color piece)]
@@ -105,12 +105,13 @@
 (defn- free-or-capture [game color i j]
   (or (if-free game i j) (capture game color i j)))
 
-(defn- moves [& values]
+(defn- moves 
   "Helper function that gets a list of variadic arguments and transform them into
   a set of moves, discarding nil elements"
+  [& values]
   (into #{} (filter some? values)))
 
-(defn path [game color func [i j]]
+(defn path
   "Returns a sequence of free positions (int tuples) in the chess board
   starting from an initial position, in straight line, until it reaches:
   - the board border
@@ -124,8 +125,8 @@
   - func: the function that tells the next piece (i.e. it defines the direction up, down, left, up-left, etc._
 
   Returns:
-  - a vector of int tuples
-  "
+  - a vector of int tuples" 
+  [game color func [i j]]
   (let [sequence (into []
                        (take-while some? (map
                                           #(if-free game %)
@@ -336,8 +337,8 @@
 
 (defn threats-to-king [game color]
   (->> (get-pieces game (opposite-color color))
-       (map (fn [[p pos]] [pos (available-moves game pos)]))
-       (filter (fn [[pos moves]] (and (not-empty moves)
+       (map (fn [[_p pos]] [pos (available-moves game pos)]))
+       (filter (fn [[_pos moves]] (and (not-empty moves)
                                       (moves (get-in game [:kings color])))))))
 
 (defn valid-moves-for-piece [game src-pos]
@@ -346,8 +347,8 @@
     (set (->> (available-moves-for-turn game src-pos)
               (map (fn [pos] [(apply-move-to-game game src-pos pos) pos]))
               (map (fn [[g pos]] [(count (threats-to-king g color)) pos]))
-              (filter (fn [[c pos]] (= c 0)))
-              (map (fn [[c pos]] pos))))))
+              (filter (fn [[c _pos]] (= c 0)))
+              (map (fn [[_c pos]] pos))))))
 
 (defn list-valid-moves [{:keys [turn pieces] :as game}]
   (let [color-for-turn (if (even? turn) :white :black)
@@ -357,7 +358,7 @@
 (defn apply-promotion [game {:keys [src dst promotion]} new-board]
   (let [piece (get-p game src)
         turn (:turn game)
-        [dst-i dst-j] dst
+        [dst-i _dst-j] dst
         is-pawn (#{:bp :wp} piece)
         last-rank (if (even? turn) (= 0 dst-i) (= 7 dst-i))]
     (if (and is-pawn last-rank)

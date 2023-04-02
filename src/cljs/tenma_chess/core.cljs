@@ -98,8 +98,9 @@
     (set! (.-lineWidth ctx) 2)
     (.strokeRect ctx 1 1 (- (.-width canvas) 2) (- (.-height canvas) 2))))
 
-(defn coordinate-to-index [x]
+(defn coordinate-to-index
   "convert board coordinate value (x or y) to matrix index (i or j)"
+  [x]
   (->> (take-while #(> x %) (iterate #(+ square-size %) 0))
        count
        dec))
