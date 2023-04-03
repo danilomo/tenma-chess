@@ -2,7 +2,7 @@
   (:require
    [clojure.core.async :as a :refer [<! >!]]
    [tenma-chess.chess :refer [make-move-edn]]
-   [tenma-chess.concurrent :refer [start-game-server!]]
+   [tenma-chess.concurrent :refer [start-game-server! handle-connection!]]
    [aleph.http :as http]
    [manifold.deferred :as d]
    [manifold.stream :as s]))
@@ -43,5 +43,5 @@
                       output (a/chan)]
                   (s/connect conn input)
                   (s/connect output conn)
-                  (handle-connection input output)
+                  (handle-connection! input output server-chan)
                   nil))))
