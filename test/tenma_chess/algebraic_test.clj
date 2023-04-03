@@ -18,10 +18,10 @@
                      (:moves)
                      (reduce (fn [games move]
                                (let [last-g (:game (last games))]
-                                 (conj games {:game (let [new-g (make-move-algebraic last-g move)] 
-                                                      (is new-g 
-                                                          (str "Invalid move " move " - " (:meta-inf game-as-pgn))) 
-                                                          new-g)
+                                 (conj games {:game (let [new-g (make-move-algebraic last-g move)]
+                                                      (is new-g
+                                                          (str "Invalid move " move " - " (:meta-inf game-as-pgn)))
+                                                      new-g)
                                               :move move})))
                              [{:game (new-game)}]))]
     (doseq [entry history]

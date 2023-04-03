@@ -1,6 +1,6 @@
-(ns tenma-chess.tcp-server 
-  (:require 
-   [tenma-chess.concurrent :refer [start-game-server!]] 
+(ns tenma-chess.tcp-server
+  (:require
+   [tenma-chess.concurrent :refer [start-game-server!]]
    [clojure.core.async :as a :refer [>!! <! >!]]))
 
 ; TODO: 
@@ -52,9 +52,9 @@
             (let [move (<! input)]
               (>! chan-in move)
               (recur false))
-              (let [move (<! chan-out)]
-                (>! output (str move))
-                (recur true))))))))
+            (let [move (<! chan-out)]
+              (>! output (str move))
+              (recur true))))))))
 
 (defn start-server []
   (let [server-socket (new java.net.ServerSocket 1243)

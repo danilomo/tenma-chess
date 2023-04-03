@@ -28,9 +28,9 @@
             (let [move (<! input)]
               (>! chan-in move)
               (recur false))
-              (let [move (<! chan-out)]
-                (>! output (str move))
-                (recur true))))))))
+            (let [move (<! chan-out)]
+              (>! output (str move))
+              (recur true))))))))
 
 (defn chess-handler
   [req]

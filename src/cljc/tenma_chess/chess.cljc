@@ -105,7 +105,7 @@
 (defn- free-or-capture [game color i j]
   (or (if-free game i j) (capture game color i j)))
 
-(defn- moves 
+(defn- moves
   "Helper function that gets a list of variadic arguments and transform them into
   a set of moves, discarding nil elements"
   [& values]
@@ -125,7 +125,7 @@
   - func: the function that tells the next piece (i.e. it defines the direction up, down, left, up-left, etc._
 
   Returns:
-  - a vector of int tuples" 
+  - a vector of int tuples"
   [game color func [i j]]
   (let [sequence (into []
                        (take-while some? (map
@@ -339,7 +339,7 @@
   (->> (get-pieces game (opposite-color color))
        (map (fn [[_p pos]] [pos (available-moves game pos)]))
        (filter (fn [[_pos moves]] (and (not-empty moves)
-                                      (moves (get-in game [:kings color])))))))
+                                       (moves (get-in game [:kings color])))))))
 
 (defn valid-moves-for-piece [game src-pos]
   (let [piece (get-p game src-pos)

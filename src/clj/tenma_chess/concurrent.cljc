@@ -31,7 +31,7 @@
 
                  (start-match! game-match move-func)))
   ([game-match move-func] (start-game-match! game-match move-func)
-                              game-match))
+                          game-match))
 
 (def id-gen (atom 0))
 

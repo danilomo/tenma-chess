@@ -15,38 +15,42 @@
 - [X] Essential since many games are aggregated into same file
 - [X] Same logic as parse-pgn, but we can add a callback to be invoked when every new game is collected
   
+
 * Chess engine
 ** TODO Detect draw
+
 ** TODO Stockfish integration
+
 
 * Distributed game
 ** DONE TCP Server
 
-
-** TODO Websocket chess server
-- [ ] Create new project with lein new, add Aleph as dependency
-- [ ] Replace default main method with Aleph start server
-- [ ] Add websocket endpoint, simple hello world, ping pong
-- [ ] Test websocket in websocket telnet
+** DONE Websocket chess server
+- [X] Create new project with lein new, add Aleph as dependency
+- [X] Replace default main method with Aleph start server
+- [X] Add websocket endpoint, simple hello world, ping pong
+- [X] Test websocket in websocket telnet
 
 ** TODO Improve logic of concurrent chess game with timeouts, clocks
 
-* Graphical Interface
+** TODO Create load testing scripts using Gatling (or similar), inject failures, check for resource/memory leaks
 
+
+* Graphical Interface
 ** TODO Improve Chess UI (canvas) - icons and highlighting of possible moves, selected pieces
 
 ** TODO Improve Chess UI (component) - add side panel for moves, navigating moves, etc
 
-* Online chess platform
 
+* Online chess platform
 ** TODO Website layout
 
 ** TODO Define scope of website (player profiles, x AI, x Human, history, live watch, etc)
 
 ** TODO Use Apache Shiro to store website users
 
-* Command line game client
 
+* Command line game client
 ** TODO Creat command line client application for playing the chess game
 - [ ] How to add maven dependencies in leiningen?
 - [ ] What was the name of that library that allows to create curses applications in Java
