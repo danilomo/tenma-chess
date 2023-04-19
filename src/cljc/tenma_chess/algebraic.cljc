@@ -170,7 +170,6 @@
                                       (s/replace #"\{\[[^\[\]\{\}]*\]\}" "")
                                       (s/replace #"[$]\d+" "")
                                       (parse-moves))
-                              ;(parse-moves (s/replace moves #"\{\[[^\[\]\{\}]*\]\}" ""))
                            :meta-inf (into {} (:meta-inf parsed-initial))})))
 
 

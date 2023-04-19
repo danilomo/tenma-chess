@@ -33,13 +33,14 @@
 (def castling-positions #{LEFT-WR RIGHT-WR WK LEFT-BR RIGHT-BR BK})
 
 (def initial-board
-  (into []
-        (concat
-         [[:br :bn :bb :bq :bk :bb :bn :br]]
-         [(into [] (repeat 8 :bp))]
-         (map (fn [_row] (vec (repeat 8 nil))) (range 0 4))
-         [(into [] (repeat 8 :wp))]
-         [[:wr :wn :wb :wq :wk :wb :wn :wr]])))
+  [[:br :bn :bb :bq :bk :bb :bn :br]
+   [:bp :bp :bp :bp :bp :bp :bp :bp]
+   [nil nil nil nil nil nil nil nil]
+   [nil nil nil nil nil nil nil nil]
+   [nil nil nil nil nil nil nil nil]
+   [nil nil nil nil nil nil nil nil]
+   [:wp :wp :wp :wp :wp :wp :wp :wp]
+   [:wr :wn :wb :wq :wk :wb :wn :wr]])
 
 ;; miscelaneous helper functions and variables
 
@@ -63,6 +64,7 @@
 
 (def game {:board initial-board
            :turn 0
+           :moves []
            :captured-pieces []
            :pieces (board-pieces initial-board)
            :kings {:black [0 4] :white [7 4]}
@@ -386,17 +388,77 @@
   ([game src dst]
    (apply-move-to-game game {:src src :dst dst})))
 
+(def piece-to-letter {:wk \K
+                      :wq \Q
+                      :wr \R
+                      :wb \B
+                      :wn \N
+                      :bk \K
+                      :bq \Q
+                      :br \R
+                      :bb \B
+                      :bn \N})
+
+(def i-to-rank [\8 \7 \6 \5 \4 \3 \2 \1])
+
+(def j-to-file [\a \b \c \d \e \f \g \h])
+
+(defn disambiguate-move [game piece {src :src dst :dst} last-captured]
+  (let [color (get-color piece)
+        [i j] src
+        similar-pieces (->> (get-in game [:pieces color])
+                            (filter (fn [[p pos]] (and (not= pos src)
+                                                       (= piece p))))
+                            (map second)
+                            (filter #(let [arg %
+                                           moves (get-in game [:valid-moves arg])]
+                                       (contains? moves dst))))
+        disambiguate-rank (some #(not= (first %) i) similar-pieces)
+        disambiguate-file (or
+                           (and (or (= :wp piece) (= :bp piece)) last-captured)
+                           (some #(not= (second %) j) similar-pieces))]
+    (str (or
+          (when disambiguate-file (j-to-file j))
+          (when disambiguate-rank (i-to-rank i))))))
+
+(defn translate-move-to-pgn [{:keys [last-event move game
+                                     check check-mate last-captured]}]
+  (let [check-str (cond
+                    check-mate "#"
+                    check "+"
+                    :else "")]
+
+    (case last-event
+      :right-castling (str "O-O" check-str)
+      :left-castling (str "O-O-O" check-str)
+      (let [piece (get-p game (:src move))
+            piece-str (piece-to-letter piece)
+            capture-str (when last-captured "x")
+            [dst-i dst-j] (:dst move)
+            dst-str (str (get j-to-file dst-j) (get i-to-rank dst-i))
+            disambiguation-str (disambiguate-move game piece move last-captured)
+            promotion-str (when-let [promotion (:promotion move)] (str "=" (piece-to-letter promotion)))]
+        (str piece-str disambiguation-str capture-str dst-str promotion-str check-str)))))
+
 (defn make-move [game move]
   (let [new-game (apply-move-to-game game move)
         color (if (even? (:turn new-game)) :white :black)
         check (seq (threats-to-king new-game color))
         valid-moves (list-valid-moves new-game)
-        move-count (reduce + (map #(count (second %)) valid-moves))]
+        move-count (reduce + (map #(count (second %)) valid-moves))
+        check-mate (and check (= 0 move-count))
+        move-pgn (translate-move-to-pgn {:last-event (:last-event new-game)
+                                         :last-captured (:last-captured new-game)
+                                         :move move
+                                         :game game
+                                         :check check
+                                         :check-mate check-mate})]
     (merge new-game {:valid-moves valid-moves
                      :check check
-                     :check-mate (and check (= 0 move-count))
+                     :check-mate check-mate
                      :stale-mate (and (not check) (= 0 move-count))
-                     :move-count move-count})))
+                     :move-count move-count
+                     :moves (conj (:moves game) move-pgn)})))
 
 (defn make-move-edn [game move-str]
   (let [move (edn/read-string move-str)]

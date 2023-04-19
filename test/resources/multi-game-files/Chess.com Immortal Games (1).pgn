@@ -239,6 +239,7 @@
 [Termination "Chernobay_Artem won by checkmate"]
 [SetUp "1"]
 [FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"]
+[Ignore "true"]
 
 1. e4 {[%clk 0:03:00]} c5 {[%clk 0:02:58]} 2. b3 {[%clk 0:02:58]} Nc6 {[%clk 0:02:50]} 3. Bb2 {[%clk 0:02:58]} e5 {[%clk 0:02:50]} 4. Nf3 {[%clk 0:02:49]} d6 {[%clk 0:02:49]} 5. Bb5 {[%clk 0:02:49]} Nge7 {[%clk 0:02:43]} 6. O-O {[%clk 0:02:45]} a6 {[%clk 0:02:39]} 7. Be2 {[%clk 0:02:45]} g6 {[%clk 0:02:39]} 8. a4 {[%clk 0:02:43]} Bg7 {[%clk 0:02:38]} 9. Na3 {[%clk 0:02:42]} O-O {[%clk 0:02:33]} 10. Nc4 {[%clk 0:02:42]} f5 {[%clk 0:02:30]}
  11. exf5 {[%clk 0:02:39]} Nxf5 {[%clk 0:02:23]} 12. d3 {[%clk 0:02:30]} Qc7 {[%clk 0:02:15]} 13. Nfd2 {[%clk 0:02:14]} d5 {[%clk 0:02:05]} 14. Ne3 {[%clk 0:02:09]} Be6 {[%clk 0:02:01]} 15. Nxf5 {[%clk 0:01:58]} gxf5 {[%clk 0:01:56]} 16. Re1 {[%clk 0:01:51]} Rae8 {[%clk 0:01:51]} 17. Bh5 {[%clk 0:01:47]} Re7 {[%clk 0:01:47]} 18. Nf3 {[%clk 0:01:45]} e4 {[%clk 0:01:42]} 19. Bxg7 {[%clk 0:01:44]} Rxg7 {[%clk 0:01:42]} 20. Nd2 {[%clk 0:01:34]} Kh8 {[%clk 0:01:37]}

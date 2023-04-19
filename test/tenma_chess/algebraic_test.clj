@@ -3,10 +3,11 @@
             [clojure.java.io :as io]
             [tenma-chess.algebraic :refer [make-move-algebraic parse-pgn]]
             [tenma-chess.chess :refer [new-game]]
-            [clojure.test :refer [deftest is testing]]))
+            [clojure.test :refer [deftest is testing run-test]]))
 
 (def games-list (map
                  #(str "games/" %)
+                 ;["Bobby Fischer - My 60 Memorable Games (8).pgn"]))
                  (clojure.string/split (slurp (io/resource "games.txt")) #"\n")))
 
 (def multi-games-list (map
@@ -23,7 +24,8 @@
                                                           (str "Invalid move " move " - " (:meta-inf game-as-pgn)))
                                                       new-g)
                                               :move move})))
-                             [{:game (new-game)}]))]
+                             [{:game (new-game)}]))
+        outcome (last history)]
     (doseq [entry history]
       (let [{move :move game :game} entry
             dst (:destination move)
@@ -55,7 +57,14 @@
         (when (:check-mate move)
           (println (str "Checkmate " move))
           (is (:check-mate game)
-              (str "Testing check in move " move)))))))
+              (str "Testing check in move " move)))))
+
+    (if-not (= "true" (get-in game-as-pgn [:meta-inf :Ignore]))
+      (let [expected-moves (into [] (map :move (:moves game-as-pgn)))
+            moves-history (get-in outcome [:game :moves])]
+        (doseq [move (map vector expected-moves moves-history)]
+          (let [[expected actual] move]
+            (is (= expected actual) "Testing generation of algebraic notation")))))))
 
 (deftest test-games-algebraic
   (doseq [file-name games-list]
@@ -78,6 +87,7 @@
 
 (deftest test-multigames-file
   (doseq [file-name  multi-games-list]
+    (println (str "---> Processing file " file-name))
     (letfn [(callback [game]
               (when (not= "" (s/trim game))
                 (let [g (parse-pgn game)]

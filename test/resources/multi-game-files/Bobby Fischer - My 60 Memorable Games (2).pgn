@@ -88,6 +88,7 @@ f6 c3 67. f7 1/2-1/2
 [EventCountry "ARG"]
 [Source "ChessBase"]
 [SourceDate "1999.07.01"]
+[Ignore "true"]
 
 1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Be2 e5 7. Nb3 Be7 8. O-O
 O-O 9. Be3 Be6 10. f3 Qc7 11. Qe1 Nbd7 12. Rd1 b5 13. Rd2 Nb6 14. Qf2 Rab8 15.
