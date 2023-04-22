@@ -440,25 +440,30 @@
             promotion-str (when-let [promotion (:promotion move)] (str "=" (piece-to-letter promotion)))]
         (str piece-str disambiguation-str capture-str dst-str promotion-str check-str)))))
 
+(defn valid-move? [g {:keys [src dst]}]
+  (let [available-moves (or (get-in g [:valid-moves src]) #{})]
+    (available-moves dst)))
+
 (defn make-move [game move]
-  (let [new-game (apply-move-to-game game move)
-        color (if (even? (:turn new-game)) :white :black)
-        check (seq (threats-to-king new-game color))
-        valid-moves (list-valid-moves new-game)
-        move-count (reduce + (map #(count (second %)) valid-moves))
-        check-mate (and check (= 0 move-count))
-        move-pgn (translate-move-to-pgn {:last-event (:last-event new-game)
-                                         :last-captured (:last-captured new-game)
-                                         :move move
-                                         :game game
-                                         :check check
-                                         :check-mate check-mate})]
-    (merge new-game {:valid-moves valid-moves
-                     :check check
-                     :check-mate check-mate
-                     :stale-mate (and (not check) (= 0 move-count))
-                     :move-count move-count
-                     :moves (conj (:moves game) move-pgn)})))
+  (when (valid-move? game move)
+    (let [new-game (apply-move-to-game game move)
+          color (if (even? (:turn new-game)) :white :black)
+          check (seq (threats-to-king new-game color))
+          valid-moves (list-valid-moves new-game)
+          move-count (reduce + (map #(count (second %)) valid-moves))
+          check-mate (and check (= 0 move-count))
+          move-pgn (translate-move-to-pgn {:last-event (:last-event new-game)
+                                           :last-captured (:last-captured new-game)
+                                           :move move
+                                           :game game
+                                           :check check
+                                           :check-mate check-mate})]
+      (merge new-game {:valid-moves valid-moves
+                       :check check
+                       :check-mate check-mate
+                       :stale-mate (and (not check) (= 0 move-count))
+                       :move-count move-count
+                       :moves (conj (:moves game) move-pgn)}))))
 
 (defn make-move-edn [game move-str]
   (let [move (edn/read-string move-str)]

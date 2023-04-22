@@ -34,9 +34,21 @@
 
 (defn start-server! [port]
   (let [server-socket (java.net.ServerSocket. port)
-        server-chan (start-game-server!)]
-    (loop []
-      (let [socket (.accept server-socket)
-            [input output] (socket-connection socket)]
-        (future (handle-connection! input output server-chan))
-        (recur)))))
+        server-chan (start-game-server!)
+        runnable (fn []
+                   (loop []
+                     (when-not (.isClosed server-socket)
+                       (let [socket (try (.accept server-socket)
+                                         (catch Exception e nil))
+                             [input output] (if socket
+                                              (socket-connection socket)
+                                              [nil nil])]
+                         (when socket
+                           (future (handle-connection! input output server-chan))
+                           (recur))))))
+        t (Thread. runnable)]
+    (.start t)
+    server-socket))
+
+(defn stop-server! [server-handler]
+  (.close server-handler))

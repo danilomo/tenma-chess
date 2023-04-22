@@ -14,24 +14,6 @@
 
 (def server-chan (start-game-server! make-move-edn))
 
-(defn handle-connection [input output]
-  (let [chan-in (a/chan 100)
-        chan-out (a/chan 100)]
-    (a/go
-      (>! server-chan {:in chan-in :out chan-out})
-      (let [start-msg (<! chan-out)
-            color (:color start-msg)
-            my-turn (= :white color)]
-        (>! output (str start-msg))
-        (loop [turn my-turn]
-          (if turn
-            (let [move (<! input)]
-              (>! chan-in move)
-              (recur false))
-            (let [move (<! chan-out)]
-              (>! output (str move))
-              (recur true))))))))
-
 (defn chess-handler
   [req]
   (d/let-flow [conn (d/catch

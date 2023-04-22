@@ -31,7 +31,6 @@
                  (add-watch game-atom :print-board
                             (fn [_ _ _ neu]
                               (println (str "Board\n" (print-game neu)))))
-
                  (start-match! game-match move-func)))
   ([game-match move-func] (start-game-match! game-match move-func)
                           game-match))
