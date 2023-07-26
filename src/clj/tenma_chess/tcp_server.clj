@@ -33,13 +33,15 @@
     [input-chan output-chan]))
 
 (defn start-server! [port]
-  (let [server-socket (java.net.ServerSocket. port)
-        server-chan (start-game-server!)
+  (let [connections (atom [])
+        server-socket (java.net.ServerSocket. port)
+        {server-chan :channel games :games} (start-game-server!)
         runnable (fn []
                    (loop []
                      (when-not (.isClosed server-socket)
                        (let [socket (try (.accept server-socket)
                                          (catch Exception e nil))
+                             _ (when socket (swap! connections conj socket))
                              [input output] (if socket
                                               (socket-connection socket)
                                               [nil nil])]
@@ -48,7 +50,12 @@
                            (recur))))))
         t (Thread. runnable)]
     (.start t)
-    server-socket))
+    {:server-socket server-socket :connections connections :games games}))
 
-(defn stop-server! [server-handler]
-  (.close server-handler))
+(defn stop-server! [{:keys [server-socket connections]}]
+  (doseq [conn @connections]
+    (try (.close conn)))
+  (reset! connections nil)
+  (.close server-socket))
+                    
+  

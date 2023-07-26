@@ -12,7 +12,7 @@
    :headers {"content-type" "application/text"}
    :body "Expected a websocket request."})
 
-(def server-chan (start-game-server! make-move-edn))
+(def game-server (start-game-server! make-move-edn))
 
 (defn chess-handler
   [req]
@@ -25,5 +25,5 @@
                       output (a/chan)]
                   (s/connect conn input)
                   (s/connect output conn)
-                  (handle-connection! input output server-chan)
+                  (handle-connection! input output (:channel game-server))
                   nil))))
