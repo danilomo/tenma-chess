@@ -5,16 +5,44 @@
             [tenma-chess.chess :refer [new-game]]
             [clojure.test :refer [deftest is testing run-test]]))
 
+(def sample-file "games/scholars-mate.pgn")
+
+;; refresh the list of games in the "games" folder with:
+;; ls -1 games > games.txt
 (def games-list (map
                  #(str "games/" %)
-                 ;["Bobby Fischer - My 60 Memorable Games (8).pgn"]))
                  (clojure.string/split (slurp (io/resource "games.txt")) #"\n")))
 
-(def multi-games-list (map
-                       #(str "multi-game-files/" %)
-                       (clojure.string/split (slurp (io/resource "multi-game-files.txt")) #"\n")))
 
-(defn check-game-algebraic [game-as-pgn]
+(defn do-multi-game-pgn
+  "Accepts a callback function and a file name as inputs,
+  reads the input file (a text file in pgn format) and break it
+  into chunks containg individual games"
+  [callback file-name]
+  (with-open [rdr (clojure.java.io/reader (clojure.java.io/resource file-name))]
+    (loop [[lines acc] [(line-seq rdr) []]]
+      (let [line (first lines)
+            remainder (rest lines)]
+        (if line
+          (cond (= "" (s/trim line)) (recur [remainder acc])
+                (and (nil? acc) (.startsWith line "[Event ")) (recur [remainder (conj acc line)])
+                (.startsWith line "[Event ") (do (callback (s/join "\n" acc)) (recur [remainder [line]]))
+                :else (recur [remainder (conj acc line)]))
+          (callback (s/join "\n" acc)))))))
+
+(defn read-games
+  "From a given file name containing a pgn file with the description of multiple matches,
+  split it into chunks containing individual games"
+  [file-name]
+  (let [games (atom [])
+        callback (fn [game] (when (not-empty game) (swap! games conj game)))]
+    (do-multi-game-pgn callback file-name)
+    @games))
+
+(defn check-game-in-algebraic-notation
+  "Simulates a chess match taking as input a map representing a parsed game
+  from pgn notation."
+  [game-as-pgn]
   (let [history (->> game-as-pgn
                      (:moves)
                      (reduce (fn [games move]
@@ -66,33 +94,20 @@
           (let [[expected actual] move]
             (is (= expected actual) "Testing generation of algebraic notation")))))))
 
-(deftest test-games-algebraic
-  (doseq [file-name games-list]
-    (let [file-contents (slurp (clojure.java.io/resource file-name))
-          game (parse-pgn file-contents)]
-      (println (str "Testing game: " file-name))
-      (testing (str "Testing game: " file-name) (check-game-algebraic game)))))
 
-(defn do-multi-game-pgn [callback file-name]
-  (with-open [rdr (clojure.java.io/reader (clojure.java.io/resource file-name))]
-    (loop [[lines acc] [(line-seq rdr) []]]
-      (let [line (first lines)
-            remainder (rest lines)]
-        (if line
-          (cond (= "" (s/trim line)) (recur [remainder acc])
-                (and (nil? acc) (.startsWith line "[Event ")) (recur [remainder (conj acc line)])
-                (.startsWith line "[Event ") (do (callback (s/join "\n" acc)) (recur [remainder [line]]))
-                :else (recur [remainder (conj acc line)]))
-          (callback (s/join "\n" acc)))))))
-
-(deftest test-multigames-file
-  (doseq [file-name  multi-games-list]
-    (println (str "---> Processing file " file-name))
-    (letfn [(callback [game]
-              (when (not= "" (s/trim game))
-                (let [g (parse-pgn game)]
-                  (println (str "Testing game " (get-in g [:meta-inf :Event])
+(defn game-as-str [g] (str "Testing game " (get-in g [:meta-inf :Event])
                                 " - " (get-in g [:meta-inf :White])
                                 " - " (get-in g [:meta-inf :Black])))
-                  (check-game-algebraic g))))]
-      (do-multi-game-pgn callback file-name))))
+
+
+(deftest test-games
+    (doseq [file-name games-list]
+      (println (str "Processing file: " file-name))
+      (doseq [game (map parse-pgn (read-games file-name))]
+        (println (game-as-str game))
+        (check-game-in-algebraic-notation game))))
+      
+(deftest test-single-game
+  (doseq [game (map parse-pgn (read-games sample-file))]
+    (println (game-as-str game))
+    (check-game-in-algebraic-notation game)))
