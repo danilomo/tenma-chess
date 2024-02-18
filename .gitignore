@@ -7,4 +7,4 @@ node_modules/
 package-lock.json
 resources/public/js/
 target/
-./todo.org
+todo.org
