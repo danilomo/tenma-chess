@@ -1,6 +1,6 @@
 (ns tenma-chess.concurrent
   (:require
-   [tenma-chess.chess :as chess :refer [new-game]]
+   [tenma-chess.chess.core :as chess :refer [new-game]]
    [tenma-chess.utils :as utils :refer [print-game]]
    [tenma-chess.algebraic :as algebraic :refer [make-move-algebraic]]
    [clojure.core.async :as a :refer [<! >!]]))

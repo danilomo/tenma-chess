@@ -2,7 +2,7 @@
   (:require [clojure.string :as s]
             [clojure.java.io :as io]
             [tenma-chess.algebraic :refer [make-move-algebraic parse-pgn]]
-            [tenma-chess.chess :refer [new-game]]
+            [tenma-chess.chess.core :refer [new-game]]
             [clojure.test :refer [deftest is testing run-test]]))
 
 (def sample-file "games/scholars-mate.pgn")

@@ -1,6 +1,7 @@
 (ns tenma-chess.algebraic
   (:require
-   [tenma-chess.chess :as chess :refer [get-p make-move]]
+   [tenma-chess.chess.core :as chess :refer [make-move]]
+   [tenma-chess.chess.utils :refer [get-p]]
    [clojure.edn :as edn]
    [clojure.string :as s :refer [split]]))
 
