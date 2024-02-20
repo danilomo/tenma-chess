@@ -1,5 +1,5 @@
 (ns tenma-chess.chess.pgn
-  (:require [tenma-chess.chess.utils :refer :all]))
+  (:require [tenma-chess.chess.utils :refer [get-color get-p]]))
 
 (def piece-to-letter {:wk \K
                       :wq \Q

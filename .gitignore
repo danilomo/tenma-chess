@@ -8,3 +8,5 @@ package-lock.json
 resources/public/js/
 target/
 todo.org
+temp/
+.lein-repl-history

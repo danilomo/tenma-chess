@@ -1,6 +1,4 @@
-(ns tenma-chess.chess.utils
-  (:require [clojure.edn :as edn]))
-
+(ns tenma-chess.chess.utils)
 
 (def whites #{:wr :wn :wb :wq :wk :wp})
 

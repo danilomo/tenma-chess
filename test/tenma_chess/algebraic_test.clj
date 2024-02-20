@@ -13,7 +13,6 @@
                  #(str "games/" %)
                  (clojure.string/split (slurp (io/resource "games.txt")) #"\n")))
 
-
 (defn do-multi-game-pgn
   "Accepts a callback function and a file name as inputs,
   reads the input file (a text file in pgn format) and break it
@@ -94,19 +93,17 @@
           (let [[expected actual] move]
             (is (= expected actual) "Testing generation of algebraic notation")))))))
 
-
 (defn game-as-str [g] (str "Testing game " (get-in g [:meta-inf :Event])
-                                " - " (get-in g [:meta-inf :White])
-                                " - " (get-in g [:meta-inf :Black])))
-
+                           " - " (get-in g [:meta-inf :White])
+                           " - " (get-in g [:meta-inf :Black])))
 
 (deftest test-games
-    (doseq [file-name games-list]
-      (println (str "Processing file: " file-name))
-      (doseq [game (map parse-pgn (read-games file-name))]
-        (println (game-as-str game))
-        (check-game-in-algebraic-notation game))))
-      
+  (doseq [file-name games-list]
+    (println (str "Processing file: " file-name))
+    (doseq [game (map parse-pgn (read-games file-name))]
+      (println (game-as-str game))
+      (check-game-in-algebraic-notation game))))
+
 (deftest test-single-game
   (doseq [game (map parse-pgn (read-games sample-file))]
     (println (game-as-str game))

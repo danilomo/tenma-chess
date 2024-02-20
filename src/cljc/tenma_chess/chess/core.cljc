@@ -1,8 +1,8 @@
 (ns tenma-chess.chess.core
   (:require [clojure.edn :as edn]
-            [tenma-chess.chess.utils :refer :all]
-            [tenma-chess.chess.moves :refer :all]
-            [tenma-chess.chess.pgn   :refer :all]))
+            [tenma-chess.chess.utils :refer [get-color get-p get-pieces kings opposite-color]]
+            [tenma-chess.chess.moves :refer [BK WK available-moves-map castling-positions]]
+            [tenma-chess.chess.pgn   :refer [translate-move-to-pgn]]))
 
 (def initial-board
   [[:br :bn :bb :bq :bk :bb :bn :br]

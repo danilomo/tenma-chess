@@ -81,7 +81,7 @@
       (let [start-msg (<! chan-out)
             color (:color start-msg)
             my-turn (= :white color)]
-        (>! output (str start-msg))        
+        (>! output (str start-msg))
         (loop [turn my-turn]
           (if turn
             (let [move (<! input)

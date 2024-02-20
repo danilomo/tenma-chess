@@ -1,5 +1,5 @@
 (ns tenma-chess.chess.moves
-  (:require [tenma-chess.chess.utils :refer :all]))
+  (:require [tenma-chess.chess.utils :refer [capture get-color get-p if-free not-contains?]]))
 
 (def LEFT-WR [7 0])
 
@@ -14,6 +14,7 @@
 (def BK [0 4])
 
 (def castling-positions #{LEFT-WR RIGHT-WR WK LEFT-BR RIGHT-BR BK})
+
 (defn- free-or-capture [game color i j]
   (or (if-free game i j) (capture game color i j)))
 
