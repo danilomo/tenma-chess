@@ -10,3 +10,4 @@ target/
 todo.org
 temp/
 .lein-repl-history
+.nrepl-port

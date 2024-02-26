@@ -25,7 +25,9 @@
 
   :jvm-opts ["-Xmx1G"]
   
-  :plugins [[lein-cljfmt "0.9.2"]
+  :plugins [
+            [cider/cider-nrepl "0.42.1"]
+            [lein-cljfmt "0.9.2"]
             [com.github.clj-kondo/lein-clj-kondo "0.2.4"]
             [lein-environ "1.1.0"]
             [lein-cljsbuild "1.1.7"]

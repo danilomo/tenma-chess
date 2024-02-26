@@ -152,7 +152,9 @@
           :else (make-simple-move game move))))
 
 (defn parse-moves [line]
-  (let [parts (filter #(not (re-matches #"\d+[.]" %)) (split line #"[ ]+"))
+  (let [;;parts (filter #(not (re-matches #"\d+[.]" %)) (split line #"[ ]+"))
+        processed-line (clojure.string/replace line #"\d+[.]" "")
+        parts (filter not-empty (split processed-line #"[ ]+"))
         new-moves (map (fn [part] (notation part)) parts)]
     new-moves))
 

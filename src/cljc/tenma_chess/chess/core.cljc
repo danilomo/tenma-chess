@@ -188,13 +188,16 @@
                                            :game game
                                            :check check
                                            :check-mate check-mate})
-          game-over (or check-mate)] ; (or checkmate draw surrender...
+          game-over (or check-mate) ; (or checkmate draw surrender...
+          outcome (when check-mate (if (= :black color) "1-0" "0-1"))
+          ]
       (merge new-game {:valid-moves valid-moves
                        :check check
                        :check-mate check-mate
                        :stale-mate (and (not check) (= 0 move-count))
                        :move-count move-count
                        :game-over game-over
+                       :outcome outcome
                        :moves (conj (:moves game) move-pgn)}))))
 
 (defn make-move-edn [game move-str]

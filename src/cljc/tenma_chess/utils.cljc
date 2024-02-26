@@ -1,6 +1,6 @@
 (ns tenma-chess.utils
   (:require [clojure.string :as string]
-            [tenma-chess.chess :as chess :refer [piece-map]]))
+            [tenma-chess.chess.core :as chess :refer [piece-map]]))
 
 (defn print-line [index row]
   (str (- 8 index) "  |"  (string/join "|" (map #(str " " (or (piece-map %) " ") " ") row)) "|"))

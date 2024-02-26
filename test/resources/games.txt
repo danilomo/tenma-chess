@@ -1,3 +1,4 @@
+Adams.pgn
 Bobby Fischer - My 60 Memorable Games (1).pgn
 Bobby Fischer - My 60 Memorable Games (2).pgn
 Bobby Fischer - My 60 Memorable Games (3).pgn
@@ -10,6 +11,7 @@ Bobby Fischer - My 60 Memorable Games (9).pgn
 Bobby Fischer - My 60 Memorable Games.pgn
 Chess.com Immortal Games (1).pgn
 Chess.com Immortal Games.pgn
+game.pgn
 Garry Kasparov_vs_Jorden van Foreest_2021.07.11.pgn
 Jose Raul Capablanca_vs_Celorio Rodriguez Mas_1941.__.__.pgn
 Jose Raul Capablanca_vs_Forsberg H_1941.__.__.pgn
@@ -18,5 +20,6 @@ Jose Raul Capablanca_vs_Lluis R_1941.__.__.pgn
 Jose Raul Capablanca_vs_Rodriguez Carnero A_1941.__.__.pgn
 Jose Raul Capablanca_vs_Villegas Benito H_1941.__.__.pgn
 scholars-mate.pgn
+test.pgn
 World Chess Championship_ 1886-2018 (1).pgn
 World Chess Championship_ 1886-2018.pgn

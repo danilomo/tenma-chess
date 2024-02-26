@@ -2,8 +2,8 @@
   (:require [clojure.string :as s]
             [clojure.java.io :as io]
             [tenma-chess.algebraic :refer [make-move-algebraic parse-pgn]]
-            [tenma-chess.chess.core :refer [new-game]]
-            [clojure.test :refer [deftest is testing run-test]]))
+            [tenma-chess.chess.core :refer [new-game make-move]]
+            [clojure.test :refer [deftest is testing run-test run-tests]]))
 
 (def sample-file "games/scholars-mate.pgn")
 
@@ -84,25 +84,37 @@
         (when (:check-mate move)
           (println (str "Checkmate " move))
           (is (:check-mate game)
-              (str "Testing check in move " move)))))
+              (str "Testing check in move " move)))
+
+        (when (:outcome game)
+          (is (=
+               (:outcome game)
+               (get-in game-as-pgn [:meta-inf :Result]))))))
 
     (if-not (= "true" (get-in game-as-pgn [:meta-inf :Ignore]))
       (let [expected-moves (into [] (map :move (:moves game-as-pgn)))
             moves-history (get-in outcome [:game :moves])]
-        (doseq [move (map vector expected-moves moves-history)]
-          (let [[expected actual] move]
-            (is (= expected actual) "Testing generation of algebraic notation")))))))
+        (doseq [move (map vector expected-moves moves-history (range))]
+
+          (let [[expected actual index] move]
+            ;; sadly some games from internet don't use the '#' as indicator for the check-mate
+            ;; because of this reason we have to test the last move in a way that allows us to
+            ;; handle this situation
+            (if (< index (- (count expected-moves) 2))
+              (is (= expected actual) "Testing generation of algebraic notation")
+              (is (or (= expected actual) (= expected (s/replace actual "#" "+")))
+                  "Testing generation of algebraic notation")
+              )))))))
 
 (defn game-as-str [g] (str "Testing game " (get-in g [:meta-inf :Event])
                            " - " (get-in g [:meta-inf :White])
                            " - " (get-in g [:meta-inf :Black])))
-
-(deftest test-games
-  (doseq [file-name games-list]
-    (println (str "Processing file: " file-name))
-    (doseq [game (map parse-pgn (read-games file-name))]
-      (println (game-as-str game))
-      (check-game-in-algebraic-notation game))))
+  (deftest test-games
+    (doseq [file-name games-list]
+      (println (str "Processing file: " file-name))
+      (doseq [game (map parse-pgn (read-games file-name))]
+        (println (game-as-str game))
+        (check-game-in-algebraic-notation game))))
 
 (deftest test-single-game
   (doseq [game (map parse-pgn (read-games sample-file))]

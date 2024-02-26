@@ -6,8 +6,6 @@
 
 (defn invalid-or-nil? [piece] (or (nil? piece) (= piece :invalid)))
 
-(defn get-color [piece] (if (contains? whites piece) :white :black))
-
 (defn get-pieces [game color]
   (get-in game [:pieces color]))
 
@@ -21,6 +19,11 @@
    (if (and (< i 8) (< j 8) (>= i 0) (>= j 0))
      (get-in game [:board i j])
      :invalid)))
+
+(defn get-color
+  ([piece] (if (contains? whites piece) :white :black))
+  ([game pos] (let [piece (get-p game pos)] (get-color piece))))
+
 
 (defn kings [game]
   (into {} (filter some? (for [i (range 0 8) j (range 0 8)]
