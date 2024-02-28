@@ -103,18 +103,17 @@
             (if (< index (- (count expected-moves) 2))
               (is (= expected actual) "Testing generation of algebraic notation")
               (is (or (= expected actual) (= expected (s/replace actual "#" "+")))
-                  "Testing generation of algebraic notation")
-              )))))))
+                  "Testing generation of algebraic notation"))))))))
 
 (defn game-as-str [g] (str "Testing game " (get-in g [:meta-inf :Event])
                            " - " (get-in g [:meta-inf :White])
                            " - " (get-in g [:meta-inf :Black])))
-  (deftest test-games
-    (doseq [file-name games-list]
-      (println (str "Processing file: " file-name))
-      (doseq [game (map parse-pgn (read-games file-name))]
-        (println (game-as-str game))
-        (check-game-in-algebraic-notation game))))
+(deftest test-games
+  (doseq [file-name games-list]
+    (println (str "Processing file: " file-name))
+    (doseq [game (map parse-pgn (read-games file-name))]
+      (println (game-as-str game))
+      (check-game-in-algebraic-notation game))))
 
 (deftest test-single-game
   (doseq [game (map parse-pgn (read-games sample-file))]

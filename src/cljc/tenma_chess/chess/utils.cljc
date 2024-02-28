@@ -24,7 +24,6 @@
   ([piece] (if (contains? whites piece) :white :black))
   ([game pos] (let [piece (get-p game pos)] (get-color piece))))
 
-
 (defn kings [game]
   (into {} (filter some? (for [i (range 0 8) j (range 0 8)]
                            (let [p (get-p game i j)]

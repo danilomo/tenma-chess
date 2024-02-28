@@ -3,7 +3,7 @@
    [tenma-chess.chess.core :as chess :refer [new-game]]
    [tenma-chess.utils :as utils :refer [print-game]]
    [tenma-chess.algebraic :as algebraic :refer [make-move-algebraic]]
-   [clojure.core.async :as a :refer [<! >!]]))
+   [clojure.core.async :as a :refer [<! >! >!! <!!]]))
 
 (defn close-game! [{{w-in :in w-out :out} :white {b-in :in b-out :out} :black}]
   (a/close! w-in)
@@ -96,3 +96,6 @@
               (>! output (str move))
               (recur true))))))))
 
+(defn new-player
+  ([buffer-size] {:in (a/chan buffer-size) :out (a/chan buffer-size)})
+  ([] (new-player 10)))
