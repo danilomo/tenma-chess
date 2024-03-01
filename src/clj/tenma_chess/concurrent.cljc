@@ -48,9 +48,6 @@
           match (merge
                  first-waiting
                  {:game game-atom :black player})]
-      (add-watch game-atom :print-board
-                 (fn [_ _ _ neu]
-                   (println (str "Board\n" (print-game neu)))))
       (a/go
         (>! (:out player) {:type :start :color :black})
         (>! (:out white) {:type :start :color :white}))
@@ -72,7 +69,8 @@
                  {:channel chan-in :games games})))
 
 (defn handle-connection!
-  "Provides the bridge between the concurrent game process and an underlying networking implementation (e.g. aleph, java.net.Socket, netty, etc.)"
+  "Provides the bridge between the concurrent game process and an underlying networking implementation 
+  (e.g. aleph, java.net.Socket, netty, etc.)"
   [input output server-chan]
   (let [chan-in (a/chan)
         chan-out (a/chan)]
@@ -96,6 +94,4 @@
               (>! output (str move))
               (recur true))))))))
 
-(defn new-player
-  ([buffer-size] {:in (a/chan buffer-size) :out (a/chan buffer-size)})
-  ([] (new-player 10)))
+(defn new-player [] {:in (a/chan) :out (a/chan)})

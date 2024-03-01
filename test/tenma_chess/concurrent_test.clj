@@ -1,20 +1,11 @@
 (ns tenma-chess.concurrent-test
   (:require [clojure.string :as s]
-            [clojure.core.async :as a :refer [<! >! go go-loop]]
+            [clojure.core.async :as a :refer [timeout >!! <!! <! >! go go-loop]]
             [clojure.java.io :as io]
             [tenma-chess.algebraic :refer [make-move-algebraic parse-pgn]]
             [tenma-chess.chess.core :refer [new-game make-move]]
             [tenma-chess.concurrent :refer :all]
             [clojure.test :refer [deftest is testing run-test run-tests]]))
-
-"
-Teste 1:
-- inicia servidor de game
-- inicia dois jogadores
-- alterna as jogadas entre os dois
-- servidor de game detecta jogo é finalizado e envia 'evento'
-- memória interna do jogo (mapa) é recolhido da memória
-"
 
 (def pgn-game "[Event \"World Senior Teams +50\"]
 [Site \"Struga MKD\"]
@@ -40,18 +31,35 @@ Teste 1:
   {:white (take-nth 2 moves)
    :black (take-nth 2 (rest moves))})
 
-(defn start-player! [player moves color]
+
+(defn start-player-white! [player moves color]
   (let [{in :in out :out} player]
     (go
-      (println (str color " - " (<! out)))
-      (when (= :black color) (println (str color " - " (<! out))))
+      (<! out)
       (loop [m-list moves]
-          (println (str "Jogador " color " played " (first m-list)))
-          (>! in (first m-list))
-          (println (str color " - " (<! out)))
-          (if (rest m-list)
+        (println (str "White played " (first m-list)))
+        (>! in (first m-list))
+        (println (str "Response " (<! out)))
+        (let [response (<! out)]
+          (if (not-empty (rest m-list))
             (recur (rest m-list))
-            (first m-list))))))
+            response))))))
+
+(defn start-player-black! [player moves color]
+  (let [{in :in out :out} player]
+    (go
+      (<! out) ; initial start message
+      (<! out) ; first move from white
+      (loop [m-list moves]
+        (println (str "Black played " (first m-list)))
+        (>! in (first m-list))
+        (println (str "Response " (<! out)))
+        (let [response (<! out)]
+          (if (not-empty (rest m-list))
+            (recur (rest m-list))
+            response))))))
+
+(def match (moves-list-to-match (moves-list pgn-game)))
 
 (deftest test-async-game
   (let [match (moves-list-to-match (moves-list pgn-game))
@@ -59,8 +67,16 @@ Teste 1:
         chan-server (:channel game-server)
         p1 (new-player)
         p2 (new-player)
-        result-p1 (start-player!  p1 (:white match) :white)
-        result-p2 (start-player!  p2 (:black match) :black))]
-      (>!! chan-server p1)
-      (>!! chan-server p2)
-      (println! (<!! result-p1)))
+        result-p1 (start-player-white!  p1 (:white match) :white)
+        result-p2 (start-player-black!  p2 (:black match) :black)]
+    (go
+      (>! chan-server p1)
+      (>! chan-server p2))
+    (println (<!! result-p1))
+    (println (<!! result-p2))
+    (is (every? nil? [(<!! (:in p1))
+                      (<!! (:out p1))
+                      (<!! (:in p2))
+                      (<!! (:out p2))])
+                      "Asserts channels are closed")))
+
