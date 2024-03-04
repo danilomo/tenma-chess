@@ -31,27 +31,13 @@
   {:white (take-nth 2 moves)
    :black (take-nth 2 (rest moves))})
 
-
-(defn start-player-white! [player moves color]
+(defn start-player! [player moves color]
   (let [{in :in out :out} player]
     (go
       (<! out)
+      (when (= color :black) (<! out))
       (loop [m-list moves]
-        (println (str "White played " (first m-list)))
-        (>! in (first m-list))
-        (println (str "Response " (<! out)))
-        (let [response (<! out)]
-          (if (not-empty (rest m-list))
-            (recur (rest m-list))
-            response))))))
-
-(defn start-player-black! [player moves color]
-  (let [{in :in out :out} player]
-    (go
-      (<! out) ; initial start message
-      (<! out) ; first move from white
-      (loop [m-list moves]
-        (println (str "Black played " (first m-list)))
+        (println (str color " played " (first m-list)))
         (>! in (first m-list))
         (println (str "Response " (<! out)))
         (let [response (<! out)]
@@ -65,10 +51,11 @@
   (let [match (moves-list-to-match (moves-list pgn-game))
         game-server (start-game-server!)
         chan-server (:channel game-server)
+        games (:games game-server)
         p1 (new-player)
         p2 (new-player)
-        result-p1 (start-player-white!  p1 (:white match) :white)
-        result-p2 (start-player-black!  p2 (:black match) :black)]
+        result-p1 (start-player!  p1 (:white match) :white)
+        result-p2 (start-player!  p2 (:black match) :black)]
     (go
       (>! chan-server p1)
       (>! chan-server p2))
@@ -78,5 +65,7 @@
                       (<!! (:out p1))
                       (<!! (:in p2))
                       (<!! (:out p2))])
-                      "Asserts channels are closed")))
-
+        "Asserts channels are closed")
+    (let [stats (get-stats game-server)]
+      (is (= {:waiting-players 0 :active-games 0} stats) "assert no waiting-games in the queue")
+      (println game-server))))

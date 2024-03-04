@@ -3,17 +3,17 @@
    [tenma-chess.chess.core :as chess :refer [new-game]]
    [tenma-chess.utils :as utils :refer [print-game]]
    [tenma-chess.algebraic :as algebraic :refer [make-move-algebraic]]
-   [clojure.core.async :as a :refer [<! >! >!! <!!]]))
+   [clojure.core.async :as a :refer [close! <! >! >!! <!!]]))
 
-(defn close-game! [{{w-in :in w-out :out} :white {b-in :in b-out :out} :black}]
+(defn- close-game! [{{w-in :in w-out :out} :white {b-in :in b-out :out} :black}]
   (a/close! w-in)
   (a/close! b-in)
   (a/close! w-out)
   (a/close! b-out))
 
-(defn start-game-match!
+(defn- start-game-match!
   "Implements the process of a running chess match between two concurrent users"
-  [game-match move-func]
+  [game-match move-func on-close!]
   (a/go-loop [game @(:game game-match)]
     (let [[player opponent] (if (even? (:turn game)) [:white :black] [:black :white])
           chan-in (get-in game-match [player :in])
@@ -31,14 +31,15 @@
           (if-not (:game-over new-game)
             (recur new-game)
             (do
+              (on-close!)
               (println "Jogo acabou, circulando")
               (close-game! game-match))))))))
 
 (def id-gen (atom 0))
 
-(defn join-game!
+(defn- join-game!
   "Implements the match-making logic"
-  [{:keys [waiting game-map move-func] :as games} player]
+  [{:keys [waiting game-map move-func] :as games} player chan-server]
   (if (empty? waiting)
     (assoc games :waiting (conj waiting {:white player}))
     (let [game-atom (atom (new-game))
@@ -51,11 +52,35 @@
       (a/go
         (>! (:out player) {:type :start :color :black})
         (>! (:out white) {:type :start :color :white}))
-      (start-game-match! match move-func)
-      (merge games {:waiting new-waiting
-                    :game-map (assoc game-map
-                                     (swap! id-gen inc)
-                                     match)}))))
+      (let [id (swap! id-gen inc)
+            on-close! (fn [] (a/go (>! chan-server {:type :game-over :id id})))]
+        (start-game-match! match move-func on-close!)
+        (merge games {:waiting new-waiting
+                      :game-map (assoc game-map
+                                       id
+                                       match)})))))
+
+(defn- stats-message! [game {chan-resp :channel}]
+  (let [games (or game {})
+        response {:waiting-players (count (or (:waiting games) []))
+                  :active-games (count (or (:game-map games) []))}]
+    (a/go
+      (>! chan-resp response))
+    games))
+
+(defn- stop-message! [game]
+  (merge {:stopped true} game))
+
+(defn- game-over! [{game-map :game-map :as game} {id :id}]
+  (merge game {:game-map (dissoc game-map id)}))
+
+(defn- handle-message! [game {type :type :as message} chan-in]
+  (println (str "->" chan-in))
+  (case type
+    :stats (stats-message! game message)
+    :stop (stop-message! game)
+    :game-over (game-over! game message)
+    (join-game! game message chan-in)))
 
 (defn start-game-server!
   "Start a go process that runs forever waiting for game-join requests"
@@ -63,9 +88,15 @@
   ([move-func] (let [chan-in (a/chan)
                      games (atom {:waiting [] :game-map {} :move-func move-func})]
                  (a/go (loop []
-                         (let [msg (<! chan-in)]
-                           (swap! games join-game! msg)
-                           (recur))))
+                         (let [_ (println "Esperando por alguma coisa")
+                               msg (<! chan-in)]
+                           (swap! games handle-message! msg chan-in)
+                           (if-not (:stopped @games)
+                             (recur)
+                             (do
+                               (close! chan-in)
+                               (reset! games nil)
+                               (println "Min dê, papai"))))))
                  {:channel chan-in :games games})))
 
 (defn handle-connection!
@@ -95,3 +126,8 @@
               (recur true))))))))
 
 (defn new-player [] {:in (a/chan) :out (a/chan)})
+
+(defn get-stats [game]
+  (let [c (a/chan)]
+    (>!! (:channel game) {:type :stats :channel c})
+    (<!! c)))

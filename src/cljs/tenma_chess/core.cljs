@@ -2,7 +2,8 @@
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require
    [cljs.core.async :as a :refer [<! >!]]
-   [tenma-chess.chess.core :as chess :refer [get-p piece-map get-color make-move find-moves new-game]]
+   [tenma-chess.chess.utils :refer [get-p get-color]]
+   [tenma-chess.chess.core :as chess :refer [make-move find-moves piece-map new-game]]
    [tenma-chess.algebraic :as algebraic :refer [parse-pgn make-move-algebraic]]
    [reagent.core :as r]
    [clojure.edn :as edn]
