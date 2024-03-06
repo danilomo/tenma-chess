@@ -144,7 +144,8 @@
                (notation move)
                move)
         type (:type move)]
-    (cond (= :left-castling type) (make-castling game type)
+    (cond (nil? move) nil
+          (= :left-castling type) (make-castling game type)
           (= :right-castling type) (make-castling game type)
           (= :black-wins type) game
           (= :white-wins type) game

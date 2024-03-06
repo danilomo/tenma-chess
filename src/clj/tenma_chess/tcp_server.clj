@@ -3,6 +3,8 @@
    [tenma-chess.concurrent :refer [start-game-server! handle-connection!]]
    [clojure.core.async :as a :refer [>!! <! >!]]))
 
+(def timeout)
+
 (defn socket-reader [inputstream]
   (java.io.BufferedReader. (java.io.InputStreamReader. inputstream)))
 
@@ -21,13 +23,14 @@
     (a/go (loop []
             (let [reader-chan (a/chan)]
               (future (let [move (.trim (.readLine reader))]
+                        (println (str "Leu: " move))
                         (>!! reader-chan move)))
               (let [move (<! reader-chan)]
                 (>! input-chan move)
                 (recur)))))
     (a/go (loop []
             (let [msg (<! output-chan)]
-              (.write writer msg)
+              (.write writer (str msg))
               (.flush writer)
               (recur))))
     [input-chan output-chan]))

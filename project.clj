@@ -4,7 +4,8 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
-  :dependencies [[org.clojure/clojure "1.11.1"]
+  :dependencies [[integrant "0.8.1"]
+                 [org.clojure/clojure "1.11.1"]
                  [aleph "0.6.1"]
                  [ring-server "0.5.0"]
                  [reagent "1.1.1"]
@@ -104,13 +105,9 @@
 
                    :injections [(require 'pjstadig.humane-test-output)
                                 (pjstadig.humane-test-output/activate!)]
-
                    :env {:dev true}}
-
              :shadow-cljs {:dependencies [[com.google.javascript/closure-compiler-unshaded "v20211201"]]}
-
              :server {:env {:port 8080}}
-
              :uberjar {:hooks [minify-assets.plugin/hooks]
                        :source-paths ["env/prod/clj"]
                        :prep-tasks ["compile" ["cljsbuild" "once" "min"]]

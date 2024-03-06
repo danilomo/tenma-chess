@@ -1,6 +1,7 @@
 (ns tenma-chess.concurrent
   (:require
-   [tenma-chess.chess.core :as chess :refer [new-game]]
+   [integrant.core :as ig]
+   [tenma-chess.chess.core :as chess :refer [make-move-edn new-game]]
    [tenma-chess.utils :as utils :refer [print-game]]
    [tenma-chess.algebraic :as algebraic :refer [make-move-algebraic]]
    [clojure.core.async :as a :refer [close! <! >! >!! <!!]]))
@@ -21,19 +22,26 @@
           chan-out-opponent (get-in game-match [opponent :out])
           move (<! chan-in)
           new-game (move-func game move)]
-      (if (nil? new-game)
-        (do (>! chan-out-player {:valid false})
-            (recur game))
-        (do
-          (>! chan-out-player {:valid true})
-          (>! chan-out-opponent {:move move})
-          (reset! (:game game-match) new-game)
-          (if-not (:game-over new-game)
-            (recur new-game)
-            (do
-              (on-close!)
-              (println "Jogo acabou, circulando")
-              (close-game! game-match))))))))
+      (cond
+        (nil? move) (do
+                      (>! chan-out-opponent {:type :opponent-disconnected})
+                      (on-close!)
+                      (println "Jogo acabou, circulando")
+                      (close-game! game-match))
+        (nil? new-game) (do
+                          (println "Puta que pariu!!!")
+                          (>! chan-out-player {:valid false})
+                          (recur game))
+        :else (do
+                (>! chan-out-player {:valid true})
+                (>! chan-out-opponent {:move move})
+                (reset! (:game game-match) new-game)
+                (if-not (:game-over new-game)
+                  (recur new-game)
+                  (do
+                    (on-close!)
+                    (println "Jogo acabou, circulando")
+                    (close-game! game-match))))))))
 
 (def id-gen (atom 0))
 
@@ -117,6 +125,7 @@
                   _ (println (str "Got move: " move))
                   _ (>! chan-in move)
                   {valid :valid} (<! chan-out)
+                  _ (>! output (str {valid :valid}))
                   _ (println (str "Move was okay? " valid))]
               (if valid
                 (recur false)
@@ -131,3 +140,13 @@
   (let [c (a/chan)]
     (>!! (:channel game) {:type :stats :channel c})
     (<!! c)))
+
+(defmethod ig/init-key :chess/server [key {:keys [format] :as opts}]
+  (let [make-move-func (case format :pgn make-move-algebraic make-move-edn)
+        server (start-game-server! make-move-func)]
+    (println (str "Started chess server with func" make-move-func))
+    (:channel server)))
+
+(defmethod ig/halt-key! :chess/server [_ server]
+  (println "Trying to stop chess server")
+  (>!! server {:type :stop}))
