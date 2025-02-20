@@ -1,8 +1,7 @@
 (ns tenma-chess.websocket
   (:require
-   [clojure.core.async :as a :refer [<! >!]]
-   [tenma-chess.chess.core :refer [make-move-edn]]
-   [tenma-chess.concurrent :refer [start-game-server! handle-connection!]]
+   [clojure.core.async :as a]
+   [tenma-chess.concurrent :refer [handle-connection!]]
    [aleph.http :as http]
    [manifold.deferred :as d]
    [manifold.stream :as s]))

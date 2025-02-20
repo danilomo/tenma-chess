@@ -3,8 +3,6 @@
    [tenma-chess.concurrent :refer [start-game-server! handle-connection!]]
    [clojure.core.async :as a :refer [>!! <! >!]]))
 
-(def timeout)
-
 (defn socket-reader [inputstream]
   (java.io.BufferedReader. (java.io.InputStreamReader. inputstream)))
 
@@ -57,7 +55,8 @@
 
 (defn stop-server! [{:keys [server-socket connections]}]
   (doseq [conn @connections]
-    (try (.close conn)))
+    (try (.close conn)
+         (catch Exception _ nil)))
   (reset! connections nil)
   (.close server-socket))
 

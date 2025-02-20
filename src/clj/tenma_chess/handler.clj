@@ -44,7 +44,7 @@
                         (reitit-ring/create-default-handler))
                        {:middleware middleware})))
 
-(defmethod ig/init-key :app/handler [key {:keys [chess-server]}]
+(defmethod ig/init-key :app/handler [_ {:keys [chess-server]}]
   (println "Iniciou handler")
   (params/wrap-params (reitit-ring/ring-handler
                        (reitit-ring/router

@@ -26,9 +26,7 @@
 
   :jvm-opts ["-Xmx1G"]
   
-  :plugins [
-            [cider/cider-nrepl "0.42.1"]
-            [lein-cljfmt "0.9.2"]
+  :plugins [[lein-cljfmt "0.9.2"]
             [com.github.clj-kondo/lein-clj-kondo "0.2.4"]
             [lein-environ "1.1.0"]
             [lein-cljsbuild "1.1.7"]
@@ -95,7 +93,7 @@
                                   [ring/ring-devel "1.9.5"]
                                   [prone "2021-04-23"]
                                   [figwheel-sidecar "0.5.20"]
-                                  [nrepl "0.9.0"]
+                                 ; [nrepl "0.9.0"]
                                   [thheller/shadow-cljs "2.16.7"]
                                   [pjstadig/humane-test-output "0.11.0"]]
 

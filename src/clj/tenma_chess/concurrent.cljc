@@ -2,7 +2,6 @@
   (:require
    [integrant.core :as ig]
    [tenma-chess.chess.core :as chess :refer [make-move-edn new-game]]
-   [tenma-chess.utils :as utils :refer [print-game]]
    [tenma-chess.algebraic :as algebraic :refer [make-move-algebraic]]
    [clojure.core.async :as a :refer [close! <! >! >!! <!!]]))
 
@@ -141,7 +140,7 @@
     (>!! (:channel game) {:type :stats :channel c})
     (<!! c)))
 
-(defmethod ig/init-key :chess/server [key {:keys [format] :as opts}]
+(defmethod ig/init-key :chess/server [_ {:keys [format]}]
   (let [make-move-func (case format :pgn make-move-algebraic make-move-edn)
         server (start-game-server! make-move-func)]
     (println (str "Started chess server with func" make-move-func))

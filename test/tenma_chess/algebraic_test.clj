@@ -2,8 +2,8 @@
   (:require [clojure.string :as s]
             [clojure.java.io :as io]
             [tenma-chess.algebraic :refer [make-move-algebraic parse-pgn]]
-            [tenma-chess.chess.core :refer [new-game make-move]]
-            [clojure.test :refer [deftest is testing run-test run-tests]]))
+            [tenma-chess.chess.core :refer [new-game]]
+            [clojure.test :refer [deftest is]]))
 
 (def sample-file "games/scholars-mate.pgn")
 
@@ -91,7 +91,7 @@
                (:outcome game)
                (get-in game-as-pgn [:meta-inf :Result]))))))
 
-    (if-not (= "true" (get-in game-as-pgn [:meta-inf :Ignore]))
+    (when-not (= "true" (get-in game-as-pgn [:meta-inf :Ignore]))
       (let [expected-moves (into [] (map :move (:moves game-as-pgn)))
             moves-history (get-in outcome [:game :moves])]
         (doseq [move (map vector expected-moves moves-history (range))]
