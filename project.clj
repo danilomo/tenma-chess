@@ -4,7 +4,9 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
-  :dependencies [[integrant "0.8.1"]
+  :dependencies [[pekko-clj/pekko-clj "0.1.0-SNAPSHOT"]
+                 [org.clj-commons/gloss "0.3.6"]
+                 [integrant "0.8.1"]
                  [org.clojure/clojure "1.11.1"]
                  [aleph "0.6.1"]
                  [ring-server "0.5.0"]
