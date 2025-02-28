@@ -13,7 +13,7 @@
 
 (def sys (p/actor-system))
 
-(def ^:dynamic *timeout* 1000)
+(def ^:dynamic *timeout* 30000)
 
 (defn join-game [actor in-stream]
   (let [out-stream (s/stream)
@@ -33,10 +33,11 @@
 (defn player-actor [this m]
   (println  (str this " " m " " @this "\n\n\n"))
   (let [[type-msg msg] m
+        parent (-> this (.getContext) (.getParent))
         callback (:callback @this)]
     (case type-msg
       :move (when (:my-turn @this)
-              (.tell this (:game-actor @this) msg))
+              (.tell this parent msg))
       :status (if (= :ok msg)
                 (do
                   (callback "ok")
@@ -73,24 +74,36 @@
 (defn new-player-actor [game-actor color callback]
   (.spawn game-actor player-actor {:color color
                                    :my-turn (= :white color)
-                                   :game-actor (.getSelf game-actor)
                                    :callback callback}))
 
+(defn game-init [this]
+  (let [self (-> this (.getContext) (.getSelf))
+        {white-ref :white-ref
+         black-ref :black-ref
+         white-cb :white-cb
+         black-cb :black-cb} @this
+        white (new-player-actor this :white white-cb)
+        black (new-player-actor this :black black-cb)]
+    (.tell this white-ref white)
+    (.tell this black-ref black)
+    (.tell this white [:game-start :white])
+    (.tell this black [:game-start :black])
+    {:white white :black black :game (new-game)}))
+
 (defn game-waiting-players [this callback]
-  (if (not (:white @this))
-    (let [actor (new-player-actor this :white callback)]
-      (.reply this actor)
-      (assoc @this :white actor))
-    (let [actor (new-player-actor this :black callback)]
-      (.reply this actor)
-      (.tell this (:white @this) [:game-start :white])
-      (.tell this actor [:game-start :black])
-      [game-running (merge @this {:game (new-game)
-                                  :black actor})])))
+  (if (= :none @this)
+    {:white-ref (.getSender this)
+     :white-cb callback}
+    (do
+      (.spawn this {:function game-running
+                    :pre-start game-init
+                    :state (merge @this {:black-ref (.getSender this)
+                                         :black-cb callback})})
+      :none)))
 
 ;;;;;;;;;;;;;;; definitions
 
-(def game (p/new-actor sys game-waiting-players {}))
+(def game (p/new-actor sys game-waiting-players :none))
 
 (def protocol (gloss/string :utf-8 :delimiters ["\n" "\r\n"]))
 
