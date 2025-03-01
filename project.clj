@@ -81,11 +81,9 @@
   {:http-server-root "public"
    :server-port 3449
    :nrepl-port 7002
-   :nrepl-middleware [cider.piggieback/wrap-cljs-repl
-                      ]
+   :nrepl-middleware [cider.piggieback/wrap-cljs-repl]
    :css-dirs ["resources/public/css"]
    :ring-handler tenma-chess.handler/app}
-
 
 
   :profiles {:dev {:repl-options {:init-ns tenma-chess.repl}
@@ -95,14 +93,11 @@
                                   [ring/ring-devel "1.9.5"]
                                   [prone "2021-04-23"]
                                   [figwheel-sidecar "0.5.20"]
-                                 ; [nrepl "0.9.0"]
                                   [thheller/shadow-cljs "2.16.7"]
                                   [pjstadig/humane-test-output "0.11.0"]]
-
                    :source-paths ["env/dev/clj"]
                    :resource-paths ["test/resources"]
                    :plugins [[lein-figwheel "0.5.20"]]
-
                    :injections [(require 'pjstadig.humane-test-output)
                                 (pjstadig.humane-test-output/activate!)]
                    :env {:dev true}}

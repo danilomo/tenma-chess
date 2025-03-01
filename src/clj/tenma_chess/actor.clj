@@ -11,9 +11,9 @@
    [tenma-chess.chess.core :as chess :refer [new-game]]
    [tenma-chess.algebraic :as algebraic :refer [make-move-algebraic]]))
 
-(def sys (p/actor-system))
-
 (def ^:dynamic *timeout* 30000)
+
+(def system (p/actor-system))
 
 (defn join-game [actor in-stream]
   (let [out-stream (s/stream)
@@ -25,7 +25,7 @@
                            (fn [move]
                              (.tell actor [:move move] nil))
                            out-stream)))
-     (.getDispatcher sys))
+     (.getDispatcher system))
     out-stream))
 
 ;;;;;;;;;; player actor
@@ -77,8 +77,7 @@
                                    :callback callback}))
 
 (defn game-init [this]
-  (let [self (-> this (.getContext) (.getSelf))
-        {white-ref :white-ref
+  (let [{white-ref :white-ref
          black-ref :black-ref
          white-cb :white-cb
          black-cb :black-cb} @this
@@ -103,16 +102,24 @@
 
 ;;;;;;;;;;;;;;; definitions
 
-(def game (p/new-actor sys game-waiting-players :none))
+(def game (p/new-actor system game-waiting-players :none))
 
-(def protocol (gloss/string :utf-8 :delimiters ["\n" "\r\n"]))
+(comment
+  (def protocol (gloss/string :utf-8 :delimiters ["\n" "\r\n"]))
+  
+  (defn chess-handler [stream _]
+    (let [player-in (s/stream)
+          player-out (join-game game player-in)]
+      (s/connect (s/map #(io/encode protocol %) player-in) stream)
+      (s/connect (io/decode-stream stream protocol) player-out)
+      stream))
 
-(defn chess-handler [stream _]
-  (let [player-in (s/stream)
-        player-out (join-game game player-in)]
-    (s/connect (s/map #(io/encode protocol %) player-in) stream)
-    (s/connect (io/decode-stream stream protocol) player-out)
-    stream))
+  (defn start-server [] (tcp/start-server chess-handler {:port 8080})))
 
-(defn start-server [] (tcp/start-server chess-handler {:port 8080}))
+(defmethod ig/init-key :http/server [_ {:keys [port handler]}]
+  (println "Iniciou http server")
+  (http/start-server handler {:port port}))
 
+(defmethod ig/halt-key! :http/server [_ server]
+  (println "Stopeando http server")
+  (.close server))

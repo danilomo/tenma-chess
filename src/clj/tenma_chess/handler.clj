@@ -34,16 +34,6 @@
    :headers {"Content-Type" "text/html"}
    :body (loading-page)})
 
-(def app
-  (params/wrap-params (reitit-ring/ring-handler
-                       (reitit-ring/router
-                        [["/" {:get {:handler index-handler}}]
-                         ["/chess" chess-handler]])
-                       (reitit-ring/routes
-                        (reitit-ring/create-resource-handler {:path "/" :root "/public"})
-                        (reitit-ring/create-default-handler))
-                       {:middleware middleware})))
-
 (defmethod ig/init-key :app/handler [_ {:keys [chess-server]}]
   (println "Iniciou handler")
   (params/wrap-params (reitit-ring/ring-handler
