@@ -2,54 +2,34 @@
   (:import  [org.apache.pekko.pattern Patterns]
             [pekko_clj.actor FnWrapper])
   (:require
-   [aleph.tcp :as tcp]
-   [gloss.core :as gloss]
-   [gloss.io :as io]
+   [clojure.edn :refer [read-string]]
+   [integrant.core :as ig]
    [manifold.stream :as s]
    [pekko-clj.core :as p]
-   [tenma-chess.utils :refer [print-game]]
-   [tenma-chess.chess.core :as chess :refer [new-game]]
+   [tenma-chess.chess.core :as chess :refer [new-game make-move]]
    [tenma-chess.algebraic :as algebraic :refer [make-move-algebraic]]))
 
 (def ^:dynamic *timeout* 30000)
 
-(def system (p/actor-system))
-
-(defn join-game [actor in-stream]
-  (let [out-stream (s/stream)
-        callback #(s/put! in-stream %)]
-    (.onComplete
-     (Patterns/ask actor callback *timeout*)
-     (FnWrapper/create #(let [actor (.get %)]
-                          (s/consume
-                           (fn [move]
-                             (.tell actor [:move move] nil))
-                           out-stream)))
-     (.getDispatcher system))
-    out-stream))
-
 ;;;;;;;;;; player actor
 
 (defn player-actor [this m]
-  (println  (str this " " m " " @this "\n\n\n"))
+  (println (str this " " m " " (type m)))
   (let [[type-msg msg] m
         parent (-> this (.getContext) (.getParent))
         callback (:callback @this)]
     (case type-msg
       :move (when (:my-turn @this)
               (.tell this parent msg))
-      :status (if (= :ok msg)
-                (do
-                  (callback "ok")
-                  (assoc @this :my-turn false))
-                (do
-                  (callback "Invalid move.")
-                  nil))
+      :status (do
+                (callback m)
+                (when (= :ok msg)
+                  (assoc @this :my-turn false)))
       :game-start (do
-                    (callback (str "Game started. You play as " msg))
+                    (callback m)
                     nil)
       :your-turn (do
-                   (callback (str "Your turn. Opponent played " msg))
+                   (callback m)
                    (assoc @this :my-turn true)))))
 
 ;;;;;;;; game actor
@@ -59,14 +39,12 @@
          black :black
          game :game} @this
         turn (:turn game)
-        updated-game (make-move-algebraic game move)
+        updated-game (make-move game move)
         current-p (if (even? turn) white black)
         next-p (if (even? turn) black white)]
-    (println (str (.getSender this) " - " move " - " (nil? updated-game)))
     (if (nil? updated-game)
       (.tell this current-p [:status :not-ok])
       (do
-        (println (print-game updated-game))
         (.tell this current-p [:status :ok])
         (.tell this next-p [:your-turn move])
         (assoc @this :game updated-game)))))
@@ -89,7 +67,7 @@
     (.tell this black [:game-start :black])
     {:white white :black black :game (new-game)}))
 
-(defn game-waiting-players [this callback]
+(defn game-lobby [this callback]
   (if (= :none @this)
     {:white-ref (.getSender this)
      :white-cb callback}
@@ -102,24 +80,34 @@
 
 ;;;;;;;;;;;;;;; definitions
 
-(def game (p/new-actor system game-waiting-players :none))
+(defn- join-game [system actor in-stream]
+  (let [out-stream (s/stream)
+        callback #(s/put! in-stream (pr-str %))]
+    (.onComplete
+     (Patterns/ask actor callback *timeout*)
+     (FnWrapper/create #(let [actor (.get %)]
+                          (s/consume
+                           (fn [move]
+                             (.tell actor (read-string move) nil))
+                           out-stream)))
+     (.getDispatcher system))
+    out-stream))
 
-(comment
-  (def protocol (gloss/string :utf-8 :delimiters ["\n" "\r\n"]))
-  
-  (defn chess-handler [stream _]
-    (let [player-in (s/stream)
-          player-out (join-game game player-in)]
-      (s/connect (s/map #(io/encode protocol %) player-in) stream)
-      (s/connect (io/decode-stream stream protocol) player-out)
-      stream))
+(defprotocol GameServer
+  (join [_ in-stream])
+  (close [_]))
 
-  (defn start-server [] (tcp/start-server chess-handler {:port 8080})))
+(defrecord PekkoGameServer [system game-lobby]
+  GameServer
+  (join [_ in-stream]
+    (join-game system game-lobby in-stream))
+  (close [_]
+    (.terminate system)))
 
-(defmethod ig/init-key :http/server [_ {:keys [port handler]}]
-  (println "Iniciou http server")
-  (http/start-server handler {:port port}))
+(defmethod ig/init-key :chess/server [_ _]
+  (let [system (p/actor-system)
+        game-lobby (p/new-actor system game-lobby :none)]
+    (PekkoGameServer. system game-lobby)))
 
-(defmethod ig/halt-key! :http/server [_ server]
-  (println "Stopeando http server")
-  (.close server))
+(defmethod ig/halt-key! :chess/server [_ server]
+  (close server))

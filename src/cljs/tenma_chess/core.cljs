@@ -29,26 +29,32 @@
 (defn wait-for-move! []
   (go (let [ws (:ws @match-info)
             in (:source ws)
-            msg (<! in)
-            move-from-adv (clojure.edn/read-string (:move msg))]
-        (swap! game #(make-move % move-from-adv))
+            [_ move-from-adversary] (clojure.edn/read-string (<! in))]
+        (println (str "Bucetaaaaaa " _ move-from-adversary))
+        (swap! game #(make-move % move-from-adversary))
         (repaint!)
         (swap! match-info assoc :my-turn true))))
 
 (defn connect-ws! []
-  (go (let [stream (<! (ws/connect "ws://localhost:8080/chess" {:format fmt/edn}))
-            info (<! (:source stream))
-            my-turn (= :white (:color info))]
-        (reset! match-info (merge {:ws stream :state :started :my-turn my-turn} info))
+  (go (let [stream (<! (ws/connect "ws://localhost:8080/chess"))
+            msg (clojure.edn/read-string (<! (:source stream)))
+            _ (println (str "Fodaseeee " msg))
+            [_ color] msg
+            my-turn (= :white color)]
+        (reset! match-info (merge {:ws stream :state :started :my-turn my-turn}))
+        (println @match-info)
         (when-not (:my-turn @match-info) (wait-for-move!)))))
 
 (defn send-move! [move]
   (let [ws (:ws @match-info)
-        out (:sink ws)]
+        out (:sink ws)
+        in (:source ws)]
     (go
-      (>! out move)
-      (swap! match-info assoc :my-turn false))
-    (wait-for-move!)))
+      (>! out [:move move])
+      (swap! match-info assoc :my-turn false)
+      (let [[_ status] (clojure.edn/read-string (<! in))]
+        (when (= :ok status)
+          (wait-for-move!))))))
 
 ; painting functions
 

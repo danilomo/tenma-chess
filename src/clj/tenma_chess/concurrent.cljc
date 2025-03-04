@@ -140,6 +140,8 @@
     (>!! (:channel game) {:type :stats :channel c})
     (<!! c)))
 
+(comment
+
 (defmethod ig/init-key :chess/server [_ {:keys [format]}]
   (let [make-move-func (case format :pgn make-move-algebraic make-move-edn)
         server (start-game-server! make-move-func)]
@@ -149,3 +151,5 @@
 (defmethod ig/halt-key! :chess/server [_ server]
   (println "Trying to stop chess server")
   (>!! server {:type :stop}))
+
+)

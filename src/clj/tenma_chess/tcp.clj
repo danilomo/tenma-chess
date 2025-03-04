@@ -14,7 +14,6 @@
     (s/connect
      (s/map #(io/encode protocol %) out)
      s)))
-    
 
 (defn start-server [] (tcp/start-server echo-handler {:port 10001}))
 

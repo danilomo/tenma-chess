@@ -45,3 +45,11 @@
                         (reitit-ring/create-default-handler))
                        {:middleware middleware})))
 
+
+(def app (params/wrap-params (reitit-ring/ring-handler
+                       (reitit-ring/router
+                        [["/" {:get {:handler index-handler}}]])
+                       (reitit-ring/routes
+                        (reitit-ring/create-resource-handler {:path "/" :root "/public"})
+                        (reitit-ring/create-default-handler))
+                       {:middleware middleware})))
